@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "mongoose": "^9.0.0"
   },
@@ -9,5 +10,6 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js"
-  }
+  },
+  "name": "node.js-casestudy"
 }
