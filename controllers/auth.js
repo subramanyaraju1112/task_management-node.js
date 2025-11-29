@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import User from "../models/auth.js";
 import generateToken from "../utils/generateToken.js"
+
 const handleSignupUser = async (req, res) => {
   try {
     const { username, email, password } = req.body;
