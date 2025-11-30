@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import User from "../models/auth.js";
-import generateToken from "../utils/generateToken.js"
+import generateToken from "../utils/generateToken.js";
 
 const handleSignupUser = async (req, res) => {
   try {
@@ -17,7 +17,7 @@ const handleSignupUser = async (req, res) => {
       username,
       email,
       password: hashedPassword,
-      role: "user",
+      role: "users",
     });
     return res.status(201).json({ message: "Account Created Successfully!" });
   } catch (error) {

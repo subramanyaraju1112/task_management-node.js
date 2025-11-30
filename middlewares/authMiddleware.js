@@ -34,10 +34,34 @@ const checkuserInDB = async (userId) => {
 };
 
 const userOnly = (req, res, next) => {
-  if (req.user.role !== "user") {
-    return res.status(403).json({ message: "Access Denied! Users Only" });
+  try {
+    if (req.user.role !== "user") {
+      return res.status(403).json({ message: "Access Denied! Users Only" });
+    }
+    next();
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Access error", error: error.message });
   }
-  next();
 };
 
-export { checkAuthentication, userOnly };
+const adminOnly = (req, res, next) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ message: "Admin access only" });
+    }
+
+    next();
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Access error", error: error.message });
+  }
+};
+
+export { checkAuthentication, userOnly, adminOnly };
