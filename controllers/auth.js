@@ -17,7 +17,7 @@ const handleSignupUser = async (req, res) => {
       username,
       email,
       password: hashedPassword,
-      role: "users",
+      role: "user",
     });
     return res.status(201).json({ message: "Account Created Successfully!" });
   } catch (error) {
