@@ -12,10 +12,12 @@ router
 
 router
   .route("/all-users/:userId/tasks")
-  .get(checkAuthentication, adminOnly, adminController.getUserTasks);
+  .get(checkAuthentication, adminOnly, adminController.getUserTasks)
+  .post(checkAuthentication, adminOnly, adminController.addUserTask);
 
 router
   .route("/all-users/:userId/tasks/:id")
+  .patch(checkAuthentication, adminOnly, adminController.editUserTask)
   .delete(checkAuthentication, adminOnly, adminController.deleteUserTask);
 
 export default router;
