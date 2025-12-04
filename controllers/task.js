@@ -4,7 +4,7 @@ const addTask = async (req, res) => {
   try {
     const { title, description } = req.body;
     if (!title || !description) {
-      return res.status(400).json({ message: "All fields required!" });
+      return res.status(400).json({ message: "All Fields Required!" });
     }
     const task = await Task.create({
       title,
@@ -15,7 +15,7 @@ const addTask = async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json({ message: "Error creating Task", error: error.message });
+      .json({ message: "Error Creating Task", error: error.message });
   }
 };
 
@@ -23,12 +23,12 @@ const getTask = async (req, res) => {
   try {
     const userId = req.user._id;
     const tasks = await Task.find({ userId }).sort({ createdAt: 1 });
-    if (!tasks.length) {
-      return res.status(404).json({ message: "No Tasks found" });
+    if (tasks.length === 0) {
+      return res.status(200).json({ message: "No Tasks Found", tasks: [] });
     }
     return res
       .status(200)
-      .json({ message: "Tasks fetched successfully", tasks });
+      .json({ message: "Tasks Fetched Successfully", tasks });
   } catch (error) {
     return res
       .status(500)
@@ -41,10 +41,10 @@ const getTaskById = async (req, res) => {
     const taskId = req.params.id;
     const userId = req.user._id;
     const task = await Task.findOne({ _id: taskId, userId });
-    if (!task) {
-      return res.status(404).json({ message: "Task not found" });
+    if (task.length === 0) {
+      return res.status(200).json({ message: "No Tasks Found", task: [] });
     }
-    return res.status(200).json({ message: "Task fetched successfully", task });
+    return res.status(200).json({ message: "Task Fetched Successfully", task });
   } catch (error) {
     return res
       .status(500)

@@ -24,6 +24,10 @@ const getAllUsers = async (req, res) => {
 const getUserTasks = async (req, res) => {
   try {
     const userId = req.params.userId;
+    const user = await User.findById(userId).select("username email");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
     const userTasks = await Task.find({ userId }).sort({ createdAt: 1 });
     if (userTasks.length === 0) {
       return res.status(404).json({ message: "No Tasks Found" });
@@ -31,6 +35,11 @@ const getUserTasks = async (req, res) => {
     return res.status(200).json({
       message: "Tasks fetched successfully",
       totalTasks: userTasks.length,
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+      },
       tasks: userTasks,
     });
   } catch (error) {
@@ -77,10 +86,10 @@ const addUserTask = async (req, res) => {
 
 const editUserTask = async (req, res) => {
   try {
-    const { id, userId } = req.params;
+    const { taskId, userId } = req.params;
     const updates = req.body;
 
-    const task = await Task.findOne({ _id: id, userId });
+    const task = await Task.findOne({ _id: taskId, userId });
 
     if (!task) {
       return res.status(404).json({ message: "Task not found" });
@@ -103,9 +112,13 @@ const editUserTask = async (req, res) => {
 
 const deleteUserTask = async (req, res) => {
   try {
-    const taskId = req.params.id;
-    const deletedTask = await Task.deleteOne({ _id: taskId });
-    if (deletedTask.deletedCount === 0) {
+    const { userId, taskId } = req.params;
+    const deletedTask = await Task.findOneAndDelete({
+      _id: taskId,
+      userId,
+    });
+
+    if (!deletedTask) {
       return res.status(404).json({ message: "Task not found" });
     }
     return res
@@ -118,4 +131,10 @@ const deleteUserTask = async (req, res) => {
   }
 };
 
-export default { getAllUsers, getUserTasks, addUserTask, editUserTask, deleteUserTask };
+export default {
+  getAllUsers,
+  getUserTasks,
+  addUserTask,
+  editUserTask,
+  deleteUserTask,
+};

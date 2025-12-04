@@ -35,7 +35,7 @@ const handleSigninUser = async (req, res) => {
     }
     const findUser = await User.findOne({ email }).select("+password");
     if (!findUser) {
-      return res.status(400).json({ message: "User doesn't exist, Sign-Up" });
+      return res.status(400).json({ message: "User Doesn't Exist, Sign-Up" });
     }
     const isMatch = await bcrypt.compare(password, findUser.password);
     if (!isMatch) {
@@ -43,7 +43,7 @@ const handleSigninUser = async (req, res) => {
     }
     const token = generateToken(findUser);
     return res.status(200).json({
-      message: "Login Successfull",
+      message: "Sign Successfull",
       token,
       user: {
         id: findUser._id,
@@ -55,8 +55,21 @@ const handleSigninUser = async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json({ message: "Error logging in", error: error.message });
+      .json({ message: "Error Signing In", error: error.message });
   }
 };
 
-export default { handleSignupUser, handleSigninUser };
+const handleLogoutUser = async (req, res) => {
+  try {
+    return res.status(200).json({
+      message: "Logout Successfull",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Logout Failed",
+      error: error.message,
+    });
+  }
+};
+
+export default { handleSignupUser, handleSigninUser, handleLogoutUser };

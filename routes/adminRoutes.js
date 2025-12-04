@@ -16,7 +16,7 @@ router
   .post(checkAuthentication, adminOnly, adminController.addUserTask);
 
 router
-  .route("/all-users/:userId/tasks/:id")
+  .route("/all-users/:userId/tasks/:taskId")
   .patch(checkAuthentication, adminOnly, adminController.editUserTask)
   .delete(checkAuthentication, adminOnly, adminController.deleteUserTask);
 
