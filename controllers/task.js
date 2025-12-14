@@ -1,4 +1,5 @@
 import Task from "../models/task.js";
+import redisClient from "../config/redisClient.js";
 
 const addTask = async (req, res) => {
   try {
@@ -11,6 +12,7 @@ const addTask = async (req, res) => {
       description,
       userId: req.user._id,
     });
+    await redisClient.del(`tasks:${userId}`);
     return res.status(201).json({ message: "Task Successfully Created", task });
   } catch (error) {
     return res
@@ -22,10 +24,21 @@ const addTask = async (req, res) => {
 const getTask = async (req, res) => {
   try {
     const userId = req.user._id;
+    const cachedKey = `tasks:${userId}`;
+    const cachedTasks = await redisClient.get(cachedKey);
+    if (cachedTasks) {
+      console.log("From Redis");
+      return res.status(200).json({
+        message: "Tasks Fetched Successfully",
+        tasks: JSON.parse(cachedTasks),
+      });
+    }
     const tasks = await Task.find({ userId }).sort({ createdAt: 1 });
     if (tasks.length === 0) {
       return res.status(200).json({ message: "No Tasks Found", tasks: [] });
     }
+    await redisClient.setEx(cachedKey, 60, JSON.stringify(tasks));
+    console.log("From Mongo DB");
     return res
       .status(200)
       .json({ message: "Tasks Fetched Successfully", tasks });
@@ -40,10 +53,19 @@ const getTaskById = async (req, res) => {
   try {
     const taskId = req.params.id;
     const userId = req.user._id;
+    const cachedKey = `tasks:${userId}: ${taskId}`;
+    const cachedTask = await redisClient.get(cachedKey);
+    if (cachedTask) {
+      return res.status(200).json({
+        message: "Task Fetched Successfully",
+        task: JSON.parse(cachedTask),
+      });
+    }
     const task = await Task.findOne({ _id: taskId, userId });
     if (task.length === 0) {
       return res.status(200).json({ message: "No Tasks Found", task: [] });
     }
+    await redisClient.setEx(cachedKey, 60, JSON.stringify(task));
     return res.status(200).json({ message: "Task Fetched Successfully", task });
   } catch (error) {
     return res
@@ -70,6 +92,7 @@ const updateTask = async (req, res) => {
       updatedFields,
       { new: true }
     );
+    await redisClient.del(`tasks:${userId}:${taskId}`);
     return res
       .status(200)
       .json({ message: "Updated Successfully", task: updatedTask });
